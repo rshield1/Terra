@@ -1,0 +1,10 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h2>Your Workout Plan</h2>
+<ul>
+    {% for exercise in workout_plan.exercises.all %}
+        <li>{{ exercise.name }} - {{ exercise.description }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
