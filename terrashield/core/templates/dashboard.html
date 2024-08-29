@@ -1,0 +1,28 @@
+<!-- core/templates/dashboard.html -->
+
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h2>Your Dashboard</h2>
+
+<h3>Workout Summary</h3>
+<p>Total Workouts Completed: {{ total_workouts }}</p>
+<p>Workouts in the Last Week: {{ last_week_workouts }}</p>
+
+<h3>Workout History</h3>
+<ul>
+    {% for plan in workout_plans %}
+        <li>
+            {{ plan.date_created|date:"Y-m-d" }}: {{ plan.exercises.count }} exercises
+            {% if not plan.completed %}
+                <a href="{% url 'complete_workout' plan.id %}">Mark as Completed</a>
+            {% else %}
+                (Completed)
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'workout_plan' %}">Generate New Workout Plan</a>
+
+{% endblock %}

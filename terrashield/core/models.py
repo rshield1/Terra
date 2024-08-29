@@ -21,8 +21,9 @@ class Exercise(models.Model):
 
 class WorkoutPlan(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    exercises = models.ManyToManyField(Exercise)
+    exercises = models.ManyToManyField('Exercise')
     date_created = models.DateTimeField(auto_now_add=True)
+    completed = models.BooleanField(default=False)  # New field to track completion
 
     def __str__(self):
         return f"Workout Plan for {self.user.username} on {self.date_created.strftime('%Y-%m-%d')}"

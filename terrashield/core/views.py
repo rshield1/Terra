@@ -6,6 +6,14 @@ from django.contrib import messages
 from .forms import UserProfileForm
 from .models import UserProfile, WorkoutPlan
 from .utils import generate_workout_plan
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import WorkoutPlan
+from django.utils import timezone
+from datetime import timedelta
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 
 def register(request):
@@ -57,3 +65,34 @@ def workout_plan(request):
         workout_plan = generate_workout_plan(request.user)
     
     return render(request, 'workout_plan.html', {'workout_plan': workout_plan})
+
+@login_required
+def dashboard(request):
+    """
+    View to display the user's dashboard with their workout progress and history.
+    """
+    workout_plans = WorkoutPlan.objects.filter(user=request.user).order_by('-date_created')
+
+    # Calculate progress metrics
+    total_workouts = workout_plans.count()
+    last_week_workouts = workout_plans.filter(date_created__gte=timezone.now() - timedelta(days=7)).count()
+
+    context = {
+        'workout_plans': workout_plans,
+        'total_workouts': total_workouts,
+        'last_week_workouts': last_week_workouts,
+    }
+
+    return render(request, 'dashboard.html', context)
+
+@login_required
+def complete_workout(request, plan_id):
+    """
+    View to mark a workout plan as completed.
+    """
+    workout_plan = get_object_or_404(WorkoutPlan, id=plan_id, user=request.user)
+    workout_plan.completed = True
+    workout_plan.save()
+
+    messages.success(request, 'Workout marked as completed!')
+    return HttpResponseRedirect(reverse('dashboard'))
